@@ -97,7 +97,7 @@ class _MinutesScreenState extends State<MinutesScreen> {
           action: SnackBarAction(
             label: 'Share',
             onPressed: () {
-              Share.shareXFiles([XFile(path)]);
+              Share.shareXFiles([XFile(path)], text: 'Meeting Minutes');
             },
           ),
         ),

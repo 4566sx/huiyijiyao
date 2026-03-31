@@ -1,7 +1,7 @@
 name: meeting_ai
 description: AI Meeting Minutes App
 publish_to: 'none'
-version: 1.0.0+2
+version: 1.0.0+4
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -10,24 +10,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-  speech_to_text: ^6.6.0
-  record: ^5.0.4
-  http: ^1.1.0
-  shared_preferences: ^2.2.2
-  sqflite: ^2.3.0
-  path_provider: ^2.1.1
-  share_plus: ^7.2.1
-  permission_handler: ^11.1.0
-  provider: ^6.1.1
-  path: ^1.8.3
-  intl: ^0.18.1
-  docx_template: ^0.4.0
+  cupertino_icons: ^1.0.8
+  speech_to_text: ^7.3.0
+  record: ^6.2.0
+  docx_creator: ^1.2.0
+  http: ^1.6.0
+  shared_preferences: ^2.5.0
+  sqflite: ^2.4.0
+  path_provider: ^2.1.5
+  share_plus: ^12.0.0
+  permission_handler: ^12.0.0
+  provider: ^6.1.5
+  path: ^1.9.1
+  intl: ^0.20.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true

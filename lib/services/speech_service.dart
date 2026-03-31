@@ -9,8 +9,6 @@ class SpeechService {
   bool _isInitialized = false;
   bool _isListening = false;
   bool _isRecording = false;
-  Function(String)? _onResult;
-  Function(bool)? _onStatusChanged;
 
   bool get isInitialized => _isInitialized;
   bool get isListening => _isListening;
@@ -20,16 +18,12 @@ class SpeechService {
     if (_isInitialized) return true;
     try {
       _isInitialized = await _speech.initialize(
-        onError: (error) {
-          _onStatusChanged?.call(false);
-        },
+        onError: (error) {},
         onStatus: (status) {
           if (status == 'done' || status == 'notListening') {
             _isListening = false;
-            _onStatusChanged?.call(false);
           } else if (status == 'listening') {
             _isListening = true;
-            _onStatusChanged?.call(true);
           }
         },
       );
@@ -46,10 +40,9 @@ class SpeechService {
     }
     if (!_isInitialized) return;
 
-    _onResult = onResult;
     _speech.listen(
       onResult: (result) {
-        _onResult?.call(result.recognizedWords);
+        onResult?.call(result.recognizedWords);
       },
       listenFor: const Duration(hours: 2),
       pauseFor: const Duration(seconds: 5),
