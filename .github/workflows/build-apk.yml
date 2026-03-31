@@ -23,24 +23,38 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.24.5'
           channel: 'stable'
           cache: true
 
-      - name: Enable Android SDK
-        run: |
-          flutter precache --android
-          flutter doctor -v
-
       - name: Get dependencies
-        run: flutter pub get
+        run: flutter pub get 2>&1 | tee pub-get.log
+
+      - name: Check dependencies
+        run: flutter pub deps --style=compact
+
+      - name: Build APK debug
+        run: flutter build apk --debug 2>&1 | tee build-debug.log
+        if: failure() || success()
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release 2>&1 | tee build-release.log
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            pub-get.log
+            build-debug.log
+            build-release.log
+          retention-days: 30
 
       - name: Upload APK artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: meeting-ai-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-*.apk
           retention-days: 30
