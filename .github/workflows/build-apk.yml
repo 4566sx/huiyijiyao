@@ -33,9 +33,17 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
+      - name: List APK directory
+        run: |
+          echo "=== APK output directory ==="
+          ls -la build/app/outputs/flutter-apk/ || echo "Directory not found"
+          echo "=== All APK files ==="
+          find build -name "*.apk" -type f -exec ls -la {} \; || echo "No APK files found"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: meeting-ai-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/*.apk
           retention-days: 30
+          if-no-files-found: error
