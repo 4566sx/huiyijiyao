@@ -306,15 +306,13 @@ class _RecordScreenState extends State<RecordScreen> {
           if (_isProcessing)
             Container(
               padding: const EdgeInsets.all(16),
-              child: Column(
+              child: const Column(
                 children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 8),
+                  CircularProgressIndicator(),
+                  SizedBox(height: 8),
                   Text(
-                    _whisperService.isDownloading
-                        ? 'Downloading model... ${(_whisperService.downloadProgress * 100).toStringAsFixed(0)}%'
-                        : 'Processing...',
-                    style: const TextStyle(fontSize: 14),
+                    'Processing...',
+                    style: TextStyle(fontSize: 14),
                   ),
                 ],
               ),

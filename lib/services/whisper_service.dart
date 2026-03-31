@@ -1,42 +1,26 @@
-import 'package:whisper_ggml_plus/whisper_ggml_plus.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class WhisperService {
-  WhisperGgmlPlus? _whisper;
+  static const String _whisperApiUrl = 'https://api.openai.com/v1/audio/transcriptions';
+  String? _apiKey;
   bool _isInitialized = false;
-  bool _isDownloading = false;
-  double _downloadProgress = 0;
-  Function(double)? _onProgressUpdate;
 
   bool get isInitialized => _isInitialized;
-  bool get isDownloading => _isDownloading;
-  double get downloadProgress => _downloadProgress;
 
-  Future<bool> initialize({Function(double)? onProgressUpdate}) async {
-    if (_isInitialized) return true;
-    try {
-      _onProgressUpdate = onProgressUpdate;
-      _whisper = WhisperGgmlPlus(
-        onDownloadProgress: (progress) {
-          _downloadProgress = progress;
-          _isDownloading = progress < 1.0;
-          _onProgressUpdate?.call(progress);
-        },
-      );
-      await _whisper!.loadModel();
-      _isInitialized = true;
-      return true;
-    } catch (e) {
-      print('Whisper initialization error: $e');
-      return false;
-    }
+  Future<bool> initialize({String? apiKey}) async {
+    _apiKey = apiKey;
+    _isInitialized = apiKey != null && apiKey.isNotEmpty;
+    return _isInitialized;
   }
 
-  Future<String?> transcribe(String audioPath) async {
-    if (!_isInitialized) {
-      await initialize();
+  Future<String?> transcribe(String audioPath, {String? apiKey}) async {
+    final key = apiKey ?? _apiKey;
+    if (key == null || key.isEmpty) {
+      print('No API key provided for Whisper transcription');
+      return null;
     }
-    if (!_isInitialized || _whisper == null) return null;
 
     try {
       final file = File(audioPath);
@@ -45,8 +29,26 @@ class WhisperService {
         return null;
       }
 
-      final result = await _whisper!.transcribe(audioPath);
-      return result;
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse(_whisperApiUrl),
+      );
+      request.headers['Authorization'] = 'Bearer $key';
+      request.fields['model'] = 'whisper-1';
+      request.files.add(
+        await http.MultipartFile.fromPath('file', audioPath),
+      );
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(responseBody);
+        return data['text'] as String?;
+      } else {
+        print('Whisper API error: ${response.statusCode} - $responseBody');
+        return null;
+      }
     } catch (e) {
       print('Transcription error: $e');
       return null;
@@ -54,15 +56,10 @@ class WhisperService {
   }
 
   Future<bool> isModelDownloaded() async {
-    try {
-      return await _whisper?.isModelDownloaded() ?? false;
-    } catch (e) {
-      return false;
-    }
+    return false;
   }
 
   void dispose() {
-    _whisper = null;
     _isInitialized = false;
   }
 }
