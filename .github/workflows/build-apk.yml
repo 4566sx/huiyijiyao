@@ -28,43 +28,14 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get 2>&1 | tee -a build-output.log
+        run: flutter pub get
 
-      - name: Build APK release
-        run: |
-          set -e
-          flutter build apk --release 2>&1 | tee -a build-output.log
-        continue-on-error: true
-
-      - name: Build APK debug
-        if: steps.build_release.outcome != 'success'
-        run: |
-          set -e
-          flutter build apk --debug 2>&1 | tee -a build-output.log
-        continue-on-error: true
-
-      - name: List build output
-        run: |
-          echo "=== Build output ==="
-          cat build-output.log
-          echo "=== APK files ==="
-          find build -name "*.apk" -type f 2>/dev/null || echo "No APK found"
-          echo "=== Directory listing ==="
-          ls -la build/app/outputs/ 2>/dev/null || echo "No outputs dir"
-
-      - name: Upload build output
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: build-output.log
-          retention-days: 30
+      - name: Build APK
+        run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: meeting-ai-apk
-          path: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/flutter-apk/app-debug.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
-          if-no-files-found: warn
